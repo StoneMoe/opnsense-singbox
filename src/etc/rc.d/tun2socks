@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# PROVIDE: tun2socks
+# REQUIRE: LOGIN
+# KEYWORD: shutdown
+
+. /etc/rc.subr
+
+name="tun2socks"
+rcvar="tun2socks_enable"
+
+load_rc_config $name
+
+: ${tun2socks_enable:=no}
+
+tun2socks_command="/usr/local/bin/${name}"
+
+pidfile="/var/run/${name}.pid"
+command="/usr/sbin/daemon"
+command_args="-P ${pidfile} -f ${tun2socks_command} -device tun://proxytun0 -mtu 1392 -proxy socks5://127.0.0.1:12000 -udp-timeout 120s"
+
+run_rc_command "$1"

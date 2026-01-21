@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<acl>
+    <page-user-singbox>
+        <name>Services: sing-box</name>
+        <patterns>
+            <pattern>ui/singbox/*</pattern>
+            <pattern>api/singbox/*</pattern>
+        </patterns>
+    </page-user-singbox>
+</acl>

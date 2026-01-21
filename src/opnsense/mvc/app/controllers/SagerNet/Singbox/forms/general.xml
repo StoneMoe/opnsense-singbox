@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<form>
+    <field>
+        <id>singbox.general.enabled</id>
+        <label>Enable</label>
+        <type>checkbox</type>
+    </field>
+    <field>
+        <id>singbox.general.config</id>
+        <label>Configuration</label>
+        <type>textbox</type>
+    </field>
+</form>

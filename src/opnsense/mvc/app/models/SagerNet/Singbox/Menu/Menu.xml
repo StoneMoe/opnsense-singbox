@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<menu>
+    <Services>
+        <Singbox VisibleName="sing-box" cssClass="fa fa-diagram-project fa-fw" url="/ui/singbox"/>
+    </Services>
+</menu>

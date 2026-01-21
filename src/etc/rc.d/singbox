@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# PROVIDE: singbox
+# REQUIRE: LOGIN
+# KEYWORD: shutdown
+
+. /etc/rc.subr
+
+name="singbox"
+rcvar="singbox_enable"
+
+load_rc_config $name
+
+: ${singbox_enable:=no}
+
+singbox_command="/usr/local/bin/${name}"
+
+pidfile="/var/run/${name}.pid"
+command="/usr/sbin/daemon"
+command_args="-P ${pidfile} -f ${singbox_command} -D /usr/local/etc/singbox run"
+
+run_rc_command "$1"

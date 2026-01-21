@@ -1,0 +1,3 @@
+config.json:/usr/local/etc/singbox/config.json
+rc.conf.d/singbox:/etc/rc.conf.d/singbox
+rc.conf.d/tun2socks:/etc/rc.conf.d/tun2socks
