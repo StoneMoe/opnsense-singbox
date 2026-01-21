@@ -162,36 +162,30 @@ class SettingsController extends ApiControllerBase
         $result = array("result" => "failed");
 
         if ($this->request->isPost()) {
-            if ($this->request->hasFiles()) {
-                $files = $this->request->getUploadedFiles();
-                if (count($files) > 0) {
-                    $file = $files[0];
-                    $tempPath = $file->getTempName();
-                    $binaryPath = "/usr/local/bin/singbox";
+            if (!empty($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
+                $tempPath = $_FILES['file']['tmp_name'];
+                $binaryPath = "/usr/local/bin/singbox";
 
-                    // Backup current binary
-                    if (file_exists($binaryPath)) {
-                        copy($binaryPath, $binaryPath . ".bak");
-                    }
+                // Backup current binary
+                if (file_exists($binaryPath)) {
+                    copy($binaryPath, $binaryPath . ".bak");
+                }
 
-                    // Move uploaded file to binary location
-                    if (move_uploaded_file($tempPath, $binaryPath)) {
-                        chmod($binaryPath, 0755);
+                // Move uploaded file to binary location
+                if (move_uploaded_file($tempPath, $binaryPath)) {
+                    chmod($binaryPath, 0755);
 
-                        // Verify it's executable
-                        $backend = new Backend();
-                        $version = trim($backend->configdRun("singbox version"));
+                    // Verify it's executable
+                    $backend = new Backend();
+                    $version = trim($backend->configdRun("singbox version"));
 
-                        $result['result'] = "ok";
-                        $result['output'] = "Binary uploaded successfully.\nVersion: " . $version;
-                    } else {
-                        $result['error'] = "Failed to install binary";
-                    }
+                    $result['result'] = "ok";
+                    $result['output'] = "Binary uploaded successfully.\nVersion: " . $version;
                 } else {
-                    $result['error'] = "No file uploaded";
+                    $result['error'] = "Failed to install binary";
                 }
             } else {
-                $result['error'] = "No file in request";
+                $result['error'] = "No file uploaded or upload error";
             }
         } else {
             $result['error'] = "POST method required";
@@ -207,36 +201,30 @@ class SettingsController extends ApiControllerBase
         $result = array("result" => "failed");
 
         if ($this->request->isPost()) {
-            if ($this->request->hasFiles()) {
-                $files = $this->request->getUploadedFiles();
-                if (count($files) > 0) {
-                    $file = $files[0];
-                    $tempPath = $file->getTempName();
-                    $binaryPath = "/usr/local/bin/hev-socks5-tunnel";
+            if (!empty($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
+                $tempPath = $_FILES['file']['tmp_name'];
+                $binaryPath = "/usr/local/bin/hev-socks5-tunnel";
 
-                    // Backup current binary
-                    if (file_exists($binaryPath)) {
-                        copy($binaryPath, $binaryPath . ".bak");
-                    }
+                // Backup current binary
+                if (file_exists($binaryPath)) {
+                    copy($binaryPath, $binaryPath . ".bak");
+                }
 
-                    // Move uploaded file to binary location
-                    if (move_uploaded_file($tempPath, $binaryPath)) {
-                        chmod($binaryPath, 0755);
+                // Move uploaded file to binary location
+                if (move_uploaded_file($tempPath, $binaryPath)) {
+                    chmod($binaryPath, 0755);
 
-                        // Verify it's executable
-                        $backend = new Backend();
-                        $version = trim($backend->configdRun("tun2socks version"));
+                    // Verify it's executable
+                    $backend = new Backend();
+                    $version = trim($backend->configdRun("tun2socks version"));
 
-                        $result['result'] = "ok";
-                        $result['output'] = "Binary uploaded successfully.\nVersion: " . $version;
-                    } else {
-                        $result['error'] = "Failed to install binary";
-                    }
+                    $result['result'] = "ok";
+                    $result['output'] = "Binary uploaded successfully.\nVersion: " . $version;
                 } else {
-                    $result['error'] = "No file uploaded";
+                    $result['error'] = "Failed to install binary";
                 }
             } else {
-                $result['error'] = "No file in request";
+                $result['error'] = "No file uploaded or upload error";
             }
         } else {
             $result['error'] = "POST method required";
