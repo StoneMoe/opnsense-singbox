@@ -15,20 +15,16 @@
     }
 
     .status-message.success {
-        background-color: #dff0d8;
         border-color: #d6e9c6;
         color: #3c763d;
     }
 
     .status-message.error {
-        background-color: #f2dede;
         border-color: #ebccd1;
         color: #a94442;
     }
 
     .log-container {
-        background-color: #1e1e1e;
-        color: #d4d4d4;
         font-family: "Courier New", Courier, monospace;
         font-size: 12px;
         padding: 10px;
@@ -42,11 +38,14 @@
     .version-badge {
         display: inline-block;
         padding: 2px 8px;
-        background-color: #5bc0de;
-        color: white;
         border-radius: 3px;
         font-size: 12px;
         margin-left: 10px;
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        vertical-align: middle;
     }
 
     .panel-section {
@@ -54,7 +53,6 @@
         padding: 15px;
         border: 1px solid #ddd;
         border-radius: 4px;
-        background-color: #fafafa;
     }
 
     .panel-section h4 {
@@ -97,7 +95,6 @@
         font-family: "Courier New", Courier, monospace;
         font-size: 12px;
         white-space: pre-wrap;
-        background-color: #f5f5f5;
         padding: 10px;
         border-radius: 4px;
         max-height: 400px;
@@ -150,8 +147,8 @@
         </div>
         <div class="binary-row">
             <div class="binary-info">
-                <span class="binary-name">tun2socks</span>
-                <span class="version-badge" id="tun2socksVersion">Loading...</span>
+                <span class="binary-name">hev-socks5-tunnel</span>
+                <span class="version-badge" id="tun2socksVersion" title="">Loading...</span>
             </div>
             <div class="binary-actions">
                 <button class="btn btn-sm btn-warning" id="updateTun2socksBtn" type="button">
@@ -226,7 +223,7 @@
                 dataType: "json",
                 success: function (data) {
                     $("#singboxVersion").text(data.singbox || "Unknown");
-                    $("#tun2socksVersion").text(data.tun2socks || "Unknown");
+                    $("#tun2socksVersion").text(data.tun2socks || "Unknown").attr("title", data.tun2socks || "");
                 },
                 error: function () {
                     $("#singboxVersion").text("Error");
@@ -353,7 +350,7 @@
 
         // Update tun2socks button
         $("#updateTun2socksBtn").click(function () {
-            if (!confirm("Update tun2socks to the latest version? This will restart the service if running.")) {
+            if (!confirm("Update hev-socks5-tunnel to the latest version? This will restart the service if running.")) {
                 return;
             }
             var btn = $(this);
@@ -365,7 +362,7 @@
                 success: function (data) {
                     btn.prop('disabled', false).html('<i class="fa fa-download"></i> Update');
                     if (data.result === "ok") {
-                        showOutputModal("Update tun2socks", data.output || "Update completed");
+                        showOutputModal("Update hev-socks5-tunnel", data.output || "Update completed");
                         loadVersions();
                     } else {
                         showMessage("Update failed: " + (data.error || "Unknown error"), true);
@@ -442,7 +439,7 @@
             var file = this.files[0];
             if (!file) return;
 
-            if (!confirm("Upload and install this file as the tun2socks binary?\n\nFile: " + file.name)) {
+            if (!confirm("Upload and install this file as the hev-socks5-tunnel binary?\n\nFile: " + file.name)) {
                 $(this).val('');
                 return;
             }
@@ -463,7 +460,7 @@
                 success: function (data) {
                     btn.prop('disabled', false).html('<i class="fa fa-upload"></i> Upload');
                     if (data.result === "ok") {
-                        showOutputModal("Upload tun2socks", data.output || "Upload completed");
+                        showOutputModal("Upload hev-socks5-tunnel", data.output || "Upload completed");
                         loadVersions();
                     } else {
                         showMessage("Upload failed: " + (data.error || "Unknown error"), true);

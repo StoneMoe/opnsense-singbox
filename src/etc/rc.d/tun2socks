@@ -13,10 +13,11 @@ load_rc_config $name
 
 : ${tun2socks_enable:=no}
 
-tun2socks_command="/usr/local/bin/${name}"
+tun2socks_command="/usr/local/bin/hev-socks5-tunnel"
+tun2socks_config="/usr/local/etc/singbox/hev-socks5-tunnel.yml"
 
 pidfile="/var/run/${name}.pid"
 command="/usr/sbin/daemon"
-command_args="-P ${pidfile} -f ${tun2socks_command} -device tun://proxytun0 -mtu 1392 -proxy socks5://127.0.0.1:12000 -udp-timeout 120s"
+command_args="-P ${pidfile} -f ${tun2socks_command} ${tun2socks_config}"
 
 run_rc_command "$1"

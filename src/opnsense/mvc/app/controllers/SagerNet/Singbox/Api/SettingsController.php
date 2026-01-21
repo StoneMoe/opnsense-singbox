@@ -200,7 +200,7 @@ class SettingsController extends ApiControllerBase
     }
 
     /**
-     * Upload and install tun2socks binary
+     * Upload and install hev-socks5-tunnel binary
      */
     public function uploadTun2socksAction()
     {
@@ -212,7 +212,7 @@ class SettingsController extends ApiControllerBase
                 if (count($files) > 0) {
                     $file = $files[0];
                     $tempPath = $file->getTempName();
-                    $binaryPath = "/usr/local/bin/tun2socks";
+                    $binaryPath = "/usr/local/bin/hev-socks5-tunnel";
 
                     // Backup current binary
                     if (file_exists($binaryPath)) {
