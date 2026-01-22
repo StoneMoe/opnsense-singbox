@@ -6,7 +6,7 @@
 
 define('BINARY_PATH', '/usr/local/bin/singbox');
 define('ARCH', 'freebsd-amd64');
-define('GITHUB_API_URL', 'https://api.github.com/repos/SagerNet/sing-box/releases/latest');
+define('GITHUB_API_URL', 'https://api.github.com/repos/StoneMoe/sing-box-freebsd/releases/latest');
 
 function cleanup($tempDir)
 {
@@ -92,44 +92,18 @@ if (is_executable(BINARY_PATH)) {
 $versionNum = ltrim($version, 'v');
 
 // Construct download URL
-$downloadUrl = "https://github.com/SagerNet/sing-box/releases/download/{$version}/sing-box-{$versionNum}-" . ARCH . ".tar.gz";
+$downloadUrl = "https://github.com/StoneMoe/sing-box-freebsd/releases/download/{$version}/sing-box-" . ARCH;
 echo "Downloading from: {$downloadUrl}\n";
 
 // Download the release
-$archivePath = "{$tempDir}/singbox.tar.gz";
-if (!downloadFile($downloadUrl, $archivePath)) {
-    echo "Error: Failed to download archive\n";
+$downloadedBinary = "{$tempDir}/sing-box";
+if (!downloadFile($downloadUrl, $downloadedBinary)) {
+    echo "Error: Failed to download binary\n";
     exit(1);
 }
 
-// Extract the binary
-echo "Extracting...\n";
-$extractDir = "{$tempDir}/extract";
-mkdir($extractDir, 0755, true);
-
-$output = [];
-$returnCode = 0;
-exec("tar -xzf " . escapeshellarg($archivePath) . " -C " . escapeshellarg($extractDir) . " 2>&1", $output, $returnCode);
-if ($returnCode !== 0) {
-    echo "Error: Failed to extract archive\n";
-    echo implode("\n", $output) . "\n";
-    exit(1);
-}
-
-// Find the binary in extracted files
-$newBinary = null;
-$iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($extractDir));
-foreach ($iterator as $file) {
-    if ($file->isFile() && $file->getFilename() === 'sing-box') {
-        $newBinary = $file->getRealPath();
-        break;
-    }
-}
-
-if (!$newBinary || !file_exists($newBinary)) {
-    echo "Error: Binary not found in archive\n";
-    exit(1);
-}
+$newBinary = $downloadedBinary;
+chmod($newBinary, 0755);
 
 // Backup current binary if it exists
 if (file_exists(BINARY_PATH)) {
