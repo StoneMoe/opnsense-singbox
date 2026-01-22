@@ -1,33 +1,109 @@
 <style>
-    /* Minimal custom CSS - only essential overrides */
-    #singbox\.general\.config {
+    .config-textarea {
+        width: 100vw;
+        max-width: 50vw;
         min-height: 400px;
         font-family: "Courier New", Courier, monospace;
+        margin-bottom: 10px;
+    }
+
+    .status-message {
+        display: none;
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 4px;
+    }
+
+    .status-message.success {
+        border-color: #d6e9c6;
+        color: #3c763d;
+    }
+
+    .status-message.error {
+        border-color: #ebccd1;
+        color: #a94442;
     }
 
     .log-container {
+        font-family: "Courier New", Courier, monospace;
+        font-size: 12px;
+        padding: 10px;
+        border-radius: 4px;
         max-height: 300px;
         overflow-y: auto;
         white-space: pre-wrap;
         word-wrap: break-word;
-        font-family: "Courier New", Courier, monospace;
+    }
+
+    .version-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 3px;
         font-size: 12px;
-        background-color: #f5f5f5;
+        margin-left: 10px;
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    .panel-section {
+        margin-top: 20px;
+        padding: 15px;
         border: 1px solid #ddd;
         border-radius: 4px;
-        padding: 10px;
+    }
+
+    .panel-section h4 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .binary-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .binary-row:last-child {
+        border-bottom: none;
+    }
+
+    .binary-info {
+        display: flex;
+        align-items: center;
+    }
+
+    .binary-name {
+        font-weight: bold;
+        min-width: 100px;
+    }
+
+    .log-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
     }
 
     .output-modal-content {
         font-family: "Courier New", Courier, monospace;
         font-size: 12px;
         white-space: pre-wrap;
-        background-color: #f5f5f5;
-        border: 1px solid #ddd;
-        border-radius: 4px;
         padding: 10px;
+        border-radius: 4px;
         max-height: 400px;
         overflow-y: auto;
+    }
+
+    .binary-actions {
+        display: flex;
+        gap: 5px;
     }
 
     .upload-input {
@@ -35,111 +111,70 @@
     }
 </style>
 
-<!-- Settings Form -->
 {{ partial("layout_partials/base_form",['fields':generalForm,'id':'frm_GeneralSettings'])}}
 
-<!-- Action Buttons -->
 <div class="row">
     <div class="col-md-12">
         <hr />
         <button class="btn btn-primary" id="saveAct" type="button">
-            <i class="fa fa-save"></i> {{ lang._('Save') }}
+            {{ lang._('Save') }}
         </button>
         <button class="btn btn-info" id="testAct" type="button">
             <i class="fa fa-check-circle"></i> {{ lang._('Test Config') }}
         </button>
-        <span id="saveMsg"></span>
+        <div id="saveMsg" class="status-message"></div>
     </div>
 </div>
 
 <!-- Binary Management Section -->
-<div class="table-responsive" style="margin-top: 20px;">
-    <table class="table table-striped table-condensed">
-        <colgroup>
-            <col style="width: 22%;" />
-            <col style="width: 40%;" />
-            <col style="width: 38%;" />
-        </colgroup>
-        <thead>
-            <tr>
-                <th colspan="3">
-                    <div style="padding-bottom: 5px; padding-top: 5px; font-size: 16px;">
-                        <i class="fa fa-cube"></i>&nbsp;<b>{{ lang._('Binary Management') }}</b>
-                    </div>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td><b>sing-box</b></td>
-                <td>
-                    <span class="label label-default" id="singboxVersion">{{ lang._('Loading...') }}</span>
-                </td>
-                <td style="text-align: right;">
-                    <button class="btn btn-xs btn-warning" id="updateSingboxBtn" type="button">
-                        <i class="fa fa-download"></i> {{ lang._('Update') }}
-                    </button>
-                    <button class="btn btn-xs btn-default" id="uploadSingboxBtn" type="button">
-                        <i class="fa fa-upload"></i> {{ lang._('Upload') }}
-                    </button>
-                    <input type="file" id="singboxFileInput" class="upload-input" accept="*">
-                </td>
-            </tr>
-            <tr>
-                <td><b>hev-socks5-tunnel</b></td>
-                <td>
-                    <span class="label label-default" id="tun2socksVersion" title="">{{ lang._('Loading...') }}</span>
-                </td>
-                <td style="text-align: right;">
-                    <button class="btn btn-xs btn-warning" id="updateTun2socksBtn" type="button">
-                        <i class="fa fa-download"></i> {{ lang._('Update') }}
-                    </button>
-                    <button class="btn btn-xs btn-default" id="uploadTun2socksBtn" type="button">
-                        <i class="fa fa-upload"></i> {{ lang._('Upload') }}
-                    </button>
-                    <input type="file" id="tun2socksFileInput" class="upload-input" accept="*">
-                </td>
-            </tr>
-        </tbody>
-    </table>
+<div class="panel-section">
+    <h4><i class="fa fa-cube"></i> {{ lang._('Binary Management') }}</h4>
+    <div id="binarySection">
+        <div class="binary-row">
+            <div class="binary-info">
+                <span class="binary-name">sing-box</span>
+                <span class="version-badge" id="singboxVersion">Loading...</span>
+            </div>
+            <div class="binary-actions">
+                <button class="btn btn-sm btn-warning" id="updateSingboxBtn" type="button">
+                    <i class="fa fa-download"></i> {{ lang._('Update') }}
+                </button>
+                <button class="btn btn-sm btn-default" id="uploadSingboxBtn" type="button">
+                    <i class="fa fa-upload"></i> {{ lang._('Upload') }}
+                </button>
+                <input type="file" id="singboxFileInput" class="upload-input" accept="*">
+            </div>
+        </div>
+        <div class="binary-row">
+            <div class="binary-info">
+                <span class="binary-name">hev-socks5-tunnel</span>
+                <span class="version-badge" id="tun2socksVersion" title="">Loading...</span>
+            </div>
+            <div class="binary-actions">
+                <button class="btn btn-sm btn-warning" id="updateTun2socksBtn" type="button">
+                    <i class="fa fa-download"></i> {{ lang._('Update') }}
+                </button>
+                <button class="btn btn-sm btn-default" id="uploadTun2socksBtn" type="button">
+                    <i class="fa fa-upload"></i> {{ lang._('Upload') }}
+                </button>
+                <input type="file" id="tun2socksFileInput" class="upload-input" accept="*">
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Log Viewer Section -->
-<div class="table-responsive">
-    <table class="table table-striped table-condensed">
-        <colgroup>
-            <col style="width: 22%;" />
-            <col style="width: 78%;" />
-        </colgroup>
-        <thead>
-            <tr>
-                <th colspan="2">
-                    <div style="padding-bottom: 5px; padding-top: 5px; font-size: 16px;">
-                        <i class="fa fa-file-text-o"></i>&nbsp;<b>{{ lang._('Logs') }}</b>
-                    </div>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>{{ lang._('Controls') }}</td>
-                <td>
-                    <button class="btn btn-xs btn-default" id="refreshLogBtn" type="button">
-                        <i class="fa fa-refresh"></i> {{ lang._('Refresh') }}
-                    </button>
-                    <label class="checkbox-inline" style="margin-left: 10px;">
-                        <input type="checkbox" id="autoRefreshLog"> {{ lang._('Auto-refresh') }}
-                    </label>
-                </td>
-            </tr>
-            <tr>
-                <td>{{ lang._('Output') }}</td>
-                <td>
-                    <div class="log-container" id="logContent">{{ lang._('Click Refresh to load logs...') }}</div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+<div class="panel-section">
+    <h4><i class="fa fa-file-text-o"></i> {{ lang._('Logs') }}</h4>
+    <div class="log-controls">
+        <button class="btn btn-sm btn-default" id="refreshLogBtn" type="button">
+            <i class="fa fa-refresh"></i> {{ lang._('Refresh') }}
+        </button>
+        <label class="checkbox-inline">
+            <input type="checkbox" id="autoRefreshLog"> {{ lang._('Auto-refresh') }}
+        </label>
+    </div>
+    <div class="log-container" id="logContent">{{ lang._('Click Refresh to load logs...') }}</div>
 </div>
 
 <!-- Output Modal -->
@@ -148,7 +183,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-                <h4 class="modal-title" id="outputModalTitle">{{ lang._('Output') }}</h4>
+                <h4 class="modal-title" id="outputModalTitle">Output</h4>
             </div>
             <div class="modal-body">
                 <div class="output-modal-content" id="outputModalContent"></div>
@@ -166,17 +201,13 @@
         var logRefreshInterval = null;
 
         function showMessage(message, isError) {
-            var alertClass = isError ? "alert-danger" : "alert-success";
             $("#saveMsg")
-                .removeClass("alert alert-success alert-danger")
-                .addClass("alert " + alertClass)
-                .css({"display": "inline-block", "padding": "6px 12px", "margin-left": "10px"})
+                .removeClass("success error")
+                .addClass(isError ? "error" : "success")
                 .html(message)
                 .fadeIn()
                 .delay(3000)
-                .fadeOut(function() {
-                    $(this).removeClass("alert " + alertClass);
-                });
+                .fadeOut();
         }
 
         function showOutputModal(title, content) {
@@ -249,9 +280,9 @@
             saveFormToEndpoint("/api/singbox/settings/set", 'frm_GeneralSettings', function (data) {
                 $("#saveAct").prop('disabled', false);
                 if (data.result && data.result === "saved") {
-                    showMessage("{{ lang._('Saved') }}", false);
+                    showMessage("Saved", false);
                 } else {
-                    showMessage("{{ lang._('Save failed') }}: " + (data.error || "Unknown error"), true);
+                    showMessage("Save failed: " + (data.error || "Unknown error"), true);
                 }
             });
         });
@@ -260,7 +291,7 @@
         $("#testAct").click(function () {
             var config = $("#singbox\\.general\\.config").val();
             if (!config || config.trim() === "") {
-                showMessage("{{ lang._('Configuration is empty') }}", true);
+                showMessage("Configuration is empty", true);
                 return;
             }
 
@@ -275,71 +306,71 @@
                     if (data.result === "ok") {
                         var output = data.output || "";
                         if (output === "" || output.toLowerCase().indexOf("error") === -1) {
-                            showMessage("{{ lang._('Configuration is valid!') }}", false);
+                            showMessage("Configuration is valid!", false);
                         } else {
-                            showOutputModal("{{ lang._('Configuration Error') }}", output);
+                            showOutputModal("Configuration Error", output);
                         }
                     } else {
-                        showMessage("{{ lang._('Test failed') }}: " + (data.error || "Unknown error"), true);
+                        showMessage("Test failed: " + (data.error || "Unknown error"), true);
                     }
                 },
                 error: function () {
                     $("#testAct").prop('disabled', false);
-                    showMessage("{{ lang._('Test request failed') }}", true);
+                    showMessage("Test request failed", true);
                 }
             });
         });
 
         // Update singbox button
         $("#updateSingboxBtn").click(function () {
-            if (!confirm("{{ lang._('Update sing-box to the latest version? This will restart the service if running.') }}")) {
+            if (!confirm("Update sing-box to the latest version? This will restart the service if running.")) {
                 return;
             }
             var btn = $(this);
-            btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> {{ lang._("Updating...") }}');
+            btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Updating...');
             $.ajax({
                 url: "/api/singbox/settings/updateSingbox",
                 type: "POST",
                 dataType: "json",
                 success: function (data) {
-                    btn.prop('disabled', false).html('<i class="fa fa-download"></i> {{ lang._("Update") }}');
+                    btn.prop('disabled', false).html('<i class="fa fa-download"></i> Update');
                     if (data.result === "ok") {
-                        showOutputModal("{{ lang._('Update sing-box') }}", data.output || "Update completed");
+                        showOutputModal("Update sing-box", data.output || "Update completed");
                         loadVersions();
                     } else {
-                        showMessage("{{ lang._('Update failed') }}: " + (data.error || "Unknown error"), true);
+                        showMessage("Update failed: " + (data.error || "Unknown error"), true);
                     }
                 },
                 error: function () {
-                    btn.prop('disabled', false).html('<i class="fa fa-download"></i> {{ lang._("Update") }}');
-                    showMessage("{{ lang._('Update request failed') }}", true);
+                    btn.prop('disabled', false).html('<i class="fa fa-download"></i> Update');
+                    showMessage("Update request failed", true);
                 }
             });
         });
 
         // Update tun2socks button
         $("#updateTun2socksBtn").click(function () {
-            if (!confirm("{{ lang._('Update hev-socks5-tunnel to the latest version? This will restart the service if running.') }}")) {
+            if (!confirm("Update hev-socks5-tunnel to the latest version? This will restart the service if running.")) {
                 return;
             }
             var btn = $(this);
-            btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> {{ lang._("Updating...") }}');
+            btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Updating...');
             $.ajax({
                 url: "/api/singbox/settings/updateTun2socks",
                 type: "POST",
                 dataType: "json",
                 success: function (data) {
-                    btn.prop('disabled', false).html('<i class="fa fa-download"></i> {{ lang._("Update") }}');
+                    btn.prop('disabled', false).html('<i class="fa fa-download"></i> Update');
                     if (data.result === "ok") {
-                        showOutputModal("{{ lang._('Update hev-socks5-tunnel') }}", data.output || "Update completed");
+                        showOutputModal("Update hev-socks5-tunnel", data.output || "Update completed");
                         loadVersions();
                     } else {
-                        showMessage("{{ lang._('Update failed') }}: " + (data.error || "Unknown error"), true);
+                        showMessage("Update failed: " + (data.error || "Unknown error"), true);
                     }
                 },
                 error: function () {
-                    btn.prop('disabled', false).html('<i class="fa fa-download"></i> {{ lang._("Update") }}');
-                    showMessage("{{ lang._('Update request failed') }}", true);
+                    btn.prop('disabled', false).html('<i class="fa fa-download"></i> Update');
+                    showMessage("Update request failed", true);
                 }
             });
         });
@@ -363,7 +394,7 @@
             var file = this.files[0];
             if (!file) return;
 
-            if (!confirm("{{ lang._('Upload and install this file as the sing-box binary?') }}\n\n{{ lang._('File') }}: " + file.name)) {
+            if (!confirm("Upload and install this file as the sing-box binary?\n\nFile: " + file.name)) {
                 $(this).val('');
                 return;
             }
@@ -372,7 +403,7 @@
             formData.append('file', file);
 
             var btn = $("#uploadSingboxBtn");
-            btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> {{ lang._("Uploading...") }}');
+            btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Uploading...');
 
             $.ajax({
                 url: "/api/singbox/settings/uploadSingbox",
@@ -382,17 +413,17 @@
                 contentType: false,
                 dataType: "json",
                 success: function (data) {
-                    btn.prop('disabled', false).html('<i class="fa fa-upload"></i> {{ lang._("Upload") }}');
+                    btn.prop('disabled', false).html('<i class="fa fa-upload"></i> Upload');
                     if (data.result === "ok") {
-                        showOutputModal("{{ lang._('Upload sing-box') }}", data.output || "Upload completed");
+                        showOutputModal("Upload sing-box", data.output || "Upload completed");
                         loadVersions();
                     } else {
-                        showMessage("{{ lang._('Upload failed') }}: " + (data.error || "Unknown error"), true);
+                        showMessage("Upload failed: " + (data.error || "Unknown error"), true);
                     }
                 },
                 error: function () {
-                    btn.prop('disabled', false).html('<i class="fa fa-upload"></i> {{ lang._("Upload") }}');
-                    showMessage("{{ lang._('Upload request failed') }}", true);
+                    btn.prop('disabled', false).html('<i class="fa fa-upload"></i> Upload');
+                    showMessage("Upload request failed", true);
                 }
             });
 
@@ -408,7 +439,7 @@
             var file = this.files[0];
             if (!file) return;
 
-            if (!confirm("{{ lang._('Upload and install this file as the hev-socks5-tunnel binary?') }}\n\n{{ lang._('File') }}: " + file.name)) {
+            if (!confirm("Upload and install this file as the hev-socks5-tunnel binary?\n\nFile: " + file.name)) {
                 $(this).val('');
                 return;
             }
@@ -417,7 +448,7 @@
             formData.append('file', file);
 
             var btn = $("#uploadTun2socksBtn");
-            btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> {{ lang._("Uploading...") }}');
+            btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Uploading...');
 
             $.ajax({
                 url: "/api/singbox/settings/uploadTun2socks",
@@ -427,21 +458,24 @@
                 contentType: false,
                 dataType: "json",
                 success: function (data) {
-                    btn.prop('disabled', false).html('<i class="fa fa-upload"></i> {{ lang._("Upload") }}');
+                    btn.prop('disabled', false).html('<i class="fa fa-upload"></i> Upload');
                     if (data.result === "ok") {
-                        showOutputModal("{{ lang._('Upload hev-socks5-tunnel') }}", data.output || "Upload completed");
+                        showOutputModal("Upload hev-socks5-tunnel", data.output || "Upload completed");
                         loadVersions();
                     } else {
-                        showMessage("{{ lang._('Upload failed') }}: " + (data.error || "Unknown error"), true);
+                        showMessage("Upload failed: " + (data.error || "Unknown error"), true);
                     }
                 },
                 error: function () {
-                    btn.prop('disabled', false).html('<i class="fa fa-upload"></i> {{ lang._("Upload") }}');
-                    showMessage("{{ lang._('Upload request failed') }}", true);
+                    btn.prop('disabled', false).html('<i class="fa fa-upload"></i> Upload');
+                    showMessage("Upload request failed", true);
                 }
             });
 
             $(this).val('');
         });
+
+        // Beautify textarea
+        $("#singbox\\.general\\.config").addClass('config-textarea');
     });
 </script>
