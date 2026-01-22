@@ -82,7 +82,7 @@ echo "Latest version: {$version}\n";
 
 // Get current version
 if (is_executable(BINARY_PATH)) {
-    $currentVersion = trim(shell_exec(BINARY_PATH . " --version 2>&1 | grep 'Version:' | awk '{print $2}'") ?: 'unknown');
+    $currentVersion = trim(shell_exec("/bin/sh -c '" . BINARY_PATH . " --version 2>&1 | grep \"Version:\" | cut -d \" \" -f 2'") ?: 'unknown');
     echo "Current version: {$currentVersion}\n";
 } else {
     echo "Current version: not installed\n";
@@ -116,7 +116,7 @@ if (!copy($newBinary, BINARY_PATH)) {
 chmod(BINARY_PATH, 0755);
 
 // Verify installation
-$newVersion = trim(shell_exec(BINARY_PATH . " --version 2>&1 | grep 'Version:' | awk '{print $2}'") ?: 'unknown');
+$newVersion = trim(shell_exec("/bin/sh -c '" . BINARY_PATH . " --version 2>&1 | grep \"Version:\" | cut -d \" \" -f 2'") ?: 'unknown');
 echo "Installed version: {$newVersion}\n";
 
 echo "Update complete!\n";
