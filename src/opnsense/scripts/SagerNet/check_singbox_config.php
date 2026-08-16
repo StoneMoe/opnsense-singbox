@@ -20,23 +20,28 @@ if ($config === false) {
 // Create temp file for config
 $tempDir = sys_get_temp_dir();
 $tempConfig = tempnam($tempDir, 'singbox_config_');
+$returnCode = 1;
 
 try {
     if (file_put_contents($tempConfig, $config) === false) {
         echo "Error: Failed to write temporary config file\n";
-        exit(1);
+    } else {
+        // Run singbox check and return its message to the UI.
+        $output = [];
+        exec("/usr/local/bin/singbox check -c " . escapeshellarg($tempConfig) . " 2>&1", $output, $returnCode);
+
+        if ($returnCode !== 0) {
+            echo "Error: sing-box rejected the configuration\n";
+            echo implode("\n", $output) . "\n";
+        } else {
+            echo "Configuration is valid\n";
+        }
     }
-
-    // Run singbox check
-    $output = [];
-    $returnCode = 0;
-    exec("/usr/local/bin/singbox check -c " . escapeshellarg($tempConfig) . " 2>&1", $output, $returnCode);
-
-    echo implode("\n", $output) . "\n";
-    exit($returnCode);
 } finally {
-    // Cleanup temp file
+    // exit() skips finally blocks, so leave the process only after this cleanup.
     if (file_exists($tempConfig)) {
         unlink($tempConfig);
     }
 }
+
+exit($returnCode);

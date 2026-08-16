@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # PROVIDE: tun2socks
-# REQUIRE: LOGIN
+# REQUIRE: LOGIN singbox
 # KEYWORD: shutdown
 
 . /etc/rc.subr
@@ -13,11 +13,21 @@ load_rc_config $name
 
 : ${tun2socks_enable:=no}
 
-tun2socks_command="/usr/local/bin/hev-socks5-tunnel"
-tun2socks_config="/usr/local/etc/singbox/hev-socks5-tunnel.yml"
+tun2socks_command="/usr/local/bin/${name}"
+tun2socks_post_up="/usr/local/etc/rc.linkup start proxytun0"
 
 pidfile="/var/run/${name}.pid"
 command="/usr/sbin/daemon"
-command_args="-P ${pidfile} -f ${tun2socks_command} ${tun2socks_config}"
+required_files="${tun2socks_command}"
+start_precmd="tun2socks_prestart"
+command_args="-P ${pidfile} -f ${tun2socks_command} --device=tun://proxytun0 --mtu=8500 --proxy=socks5://127.0.0.1:12000 --udp-timeout=120s --tun-post-up='${tun2socks_post_up}'"
+
+tun2socks_prestart()
+{
+    # A crashed process can leave the cloned TUN behind, which blocks the next start.
+    if /sbin/ifconfig proxytun0 >/dev/null 2>&1; then
+        /sbin/ifconfig proxytun0 destroy
+    fi
+}
 
 run_rc_command "$1"

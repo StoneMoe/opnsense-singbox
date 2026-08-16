@@ -136,9 +136,6 @@
                 <span class="version-badge" id="singboxVersion">Loading...</span>
             </div>
             <div class="binary-actions">
-                <button class="btn btn-sm btn-warning" id="updateSingboxBtn" type="button">
-                    <i class="fa fa-download"></i> {{ lang._('Update') }}
-                </button>
                 <button class="btn btn-sm btn-default" id="uploadSingboxBtn" type="button">
                     <i class="fa fa-upload"></i> {{ lang._('Upload') }}
                 </button>
@@ -147,13 +144,10 @@
         </div>
         <div class="binary-row">
             <div class="binary-info">
-                <span class="binary-name">hev-socks5-tunnel</span>
+                <span class="binary-name">tun2socks</span>
                 <span class="version-badge" id="tun2socksVersion" title="">Loading...</span>
             </div>
             <div class="binary-actions">
-                <button class="btn btn-sm btn-warning" id="updateTun2socksBtn" type="button">
-                    <i class="fa fa-download"></i> {{ lang._('Update') }}
-                </button>
                 <button class="btn btn-sm btn-default" id="uploadTun2socksBtn" type="button">
                     <i class="fa fa-upload"></i> {{ lang._('Upload') }}
                 </button>
@@ -304,73 +298,14 @@
                 success: function (data) {
                     $("#testAct").prop('disabled', false);
                     if (data.result === "ok") {
-                        var output = data.output || "";
-                        if (output === "" || output.toLowerCase().indexOf("error") === -1) {
-                            showMessage("Configuration is valid!", false);
-                        } else {
-                            showOutputModal("Configuration Error", output);
-                        }
+                        showMessage("Configuration is valid!", false);
                     } else {
-                        showMessage("Test failed: " + (data.error || "Unknown error"), true);
+                        showOutputModal("Configuration Error", data.error || "Test request failed");
                     }
                 },
                 error: function () {
                     $("#testAct").prop('disabled', false);
                     showMessage("Test request failed", true);
-                }
-            });
-        });
-
-        // Update singbox button
-        $("#updateSingboxBtn").click(function () {
-            if (!confirm("Update sing-box to the latest version? This will restart the service if running.")) {
-                return;
-            }
-            var btn = $(this);
-            btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Updating...');
-            $.ajax({
-                url: "/api/singbox/settings/updateSingbox",
-                type: "POST",
-                dataType: "json",
-                success: function (data) {
-                    btn.prop('disabled', false).html('<i class="fa fa-download"></i> Update');
-                    if (data.result === "ok") {
-                        showOutputModal("Update sing-box", data.output || "Update completed");
-                        loadVersions();
-                    } else {
-                        showMessage("Update failed: " + (data.error || "Unknown error"), true);
-                    }
-                },
-                error: function () {
-                    btn.prop('disabled', false).html('<i class="fa fa-download"></i> Update');
-                    showMessage("Update request failed", true);
-                }
-            });
-        });
-
-        // Update tun2socks button
-        $("#updateTun2socksBtn").click(function () {
-            if (!confirm("Update hev-socks5-tunnel to the latest version? This will restart the service if running.")) {
-                return;
-            }
-            var btn = $(this);
-            btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Updating...');
-            $.ajax({
-                url: "/api/singbox/settings/updateTun2socks",
-                type: "POST",
-                dataType: "json",
-                success: function (data) {
-                    btn.prop('disabled', false).html('<i class="fa fa-download"></i> Update');
-                    if (data.result === "ok") {
-                        showOutputModal("Update hev-socks5-tunnel", data.output || "Update completed");
-                        loadVersions();
-                    } else {
-                        showMessage("Update failed: " + (data.error || "Unknown error"), true);
-                    }
-                },
-                error: function () {
-                    btn.prop('disabled', false).html('<i class="fa fa-download"></i> Update');
-                    showMessage("Update request failed", true);
                 }
             });
         });
@@ -394,7 +329,7 @@
             var file = this.files[0];
             if (!file) return;
 
-            if (!confirm("Upload and install this file as the sing-box binary?\n\nFile: " + file.name)) {
+            if (!confirm("Upload and install this file as the sing-box binary? The service will restart when enabled.\n\nFile: " + file.name)) {
                 $(this).val('');
                 return;
             }
@@ -439,7 +374,7 @@
             var file = this.files[0];
             if (!file) return;
 
-            if (!confirm("Upload and install this file as the hev-socks5-tunnel binary?\n\nFile: " + file.name)) {
+            if (!confirm("Upload and install this file as the tun2socks binary? The service will restart when enabled.\n\nFile: " + file.name)) {
                 $(this).val('');
                 return;
             }
@@ -460,7 +395,7 @@
                 success: function (data) {
                     btn.prop('disabled', false).html('<i class="fa fa-upload"></i> Upload');
                     if (data.result === "ok") {
-                        showOutputModal("Upload hev-socks5-tunnel", data.output || "Upload completed");
+                        showOutputModal("Upload tun2socks", data.output || "Upload completed");
                         loadVersions();
                     } else {
                         showMessage("Upload failed: " + (data.error || "Unknown error"), true);

@@ -1,3 +1,4 @@
 #!/bin/sh
 
+# The 60-singbox hook sorts before this file and starts the local SOCKS listener first.
 /usr/local/etc/rc.d/tun2socks start
