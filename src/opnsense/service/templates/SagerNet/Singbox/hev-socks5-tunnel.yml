@@ -4,6 +4,7 @@
 tunnel:
   name: proxytun0
   ipv4: 198.18.0.1
+  ipv6: 'fd00:198:18::1'
 
 socks5:
   port: 12000
